@@ -107,7 +107,7 @@ void ACartagraGameModeBase::SpawnMap()
 	for (int Index = 0; Index < PositionX.Num(); Index++)
 	{
 		FVector Location{ PositionX[Index] * 100.f, PositionY[Index] * 100.f, 0.f };
-		SpawnedActor = GetWorld()->SpawnActor<AActor>(PathBPClass, Location, FRotator::ZeroRotator);
+		AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(PathBPClass, Location, FRotator::ZeroRotator);
 	}
 }	
 
@@ -117,7 +117,7 @@ void ACartagraGameModeBase::SpawnMinion()
 	float Y = FMath::RandRange(-250, 250);
 
 	FVector Location{ X, Y, 125.f };
-	Defiler = GetWorld()->SpawnActor<ADefiler>(DefilerBPClass, Location, FRotator::ZeroRotator);
+	ADefiler* Defiler = GetWorld()->SpawnActor<ADefiler>(DefilerBPClass, Location, FRotator::ZeroRotator);
 
 	if (++MinionCount == 5)
 	{

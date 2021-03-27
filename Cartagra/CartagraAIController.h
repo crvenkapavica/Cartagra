@@ -16,16 +16,6 @@ class CARTAGRA_API ACartagraAIController : public AAIController
 
 public:
 	ACartagraAIController();
-
-private:
-
-	class UCharacterMovementComponent* MoveComp;
-
-	void Move_Idle();
-
 	virtual void BeginPlay() override;
-
 	virtual void Tick(float DeltaTime) override;
-	
-	void FaceLocation(FVector Location);
 };

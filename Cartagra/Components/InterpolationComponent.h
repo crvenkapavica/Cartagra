@@ -6,7 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "InterpolationComponent.generated.h"
 
-DECLARE_DELEGATE(FOnTargetHit);
+DECLARE_DELEGATE(FOnHit);
+//DECLARE_DELEGATE_OneParam(FOnTargetHit, class ACartagraCharacter*);
+DECLARE_DELEGATE_TwoParams(FOnTargetHit, class ACartagraCharacter*, struct FCharacterStats&);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class CARTAGRA_API UInterpolationComponent : public UActorComponent
@@ -15,8 +17,11 @@ class CARTAGRA_API UInterpolationComponent : public UActorComponent
 
 private:
 
+	//Interpolate the Projectile
 	void Interpolate(FVector StartLocation, FVector TargetLocation, float DeltaTime);
 
+	//Check for collision
+	void CheckOverlap();
 
 public:	
 	// Sets default values for this component's properties
@@ -24,25 +29,11 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	//This will follow the target even though they have moved from the position they were shot at
+	class ACartagraCharacter* HomingTarget;
 
-
-	//TEMPLATED VERSION FOR CALLBACK FUNCTION 
-	//DEPRECATED = USING DELEGATES
-	/*
-	template<class CustomClass>
-	UFUNCTION()
-	void OnTargetHit(CustomClass* Object, void (CustomClass::* Callback)())
-	{
-		//TargetHit = MakeShared<CustomClass>(Object, Callback);
-		//TargetHit.BindUFunction(Object, FName("*Callback"));
-		//TargetHit.BindRaw(Object, &CustomClass::CalculateDamage);
-		//TargetHit.Execute();
-		//(*TargetHit) = &(Object->*Callback)();
-		//UE_LOG(LogTemp, Warning, TEXT("from Component"));
-	}*/
-
-	AActor* HomingTarget;
-
+	//Otherwise Use a simple FVector To interpolate the projectile
+	//currenty this also uses a Z coordinate for realistic purposes, but can easly be adjusted 
 	FVector StaticTarget;
 
 	bool bHoming = false;
@@ -50,10 +41,18 @@ public:
 	UPROPERTY(EditAnywhere)
 	float InterpSpeed;
 
+	//Maybe it should persist for a while, so it shouldnt be destroyable immediately upon overlap / block
 	UPROPERTY(EditAnywhere)
 	bool bIsDestroyable = true;
 
-	void CheckOverlap();
+	//Delegate for hitting nothing, can be used for area of effect abilities
+	FOnHit OnHit;
 
-	FOnTargetHit TargetHit;
+	//Delegate for hitting an instanced Character
+	FOnTargetHit OnTargetHit;
+
+	//Have to store a Reference to the Spawner of the projectile for collision purposes
+	//Can also be done with trace channels
+
+	class ACartagraCharacter* Caller;
 };
