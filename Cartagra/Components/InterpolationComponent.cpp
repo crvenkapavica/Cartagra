@@ -1,7 +1,7 @@
 #include "../Components/InterpolationComponent.h"
 #include "../CartagraCharacter.h"
+#include "../Defiler.h"
 
-// Sets default values for this component's properties
 UInterpolationComponent::UInterpolationComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -44,31 +44,38 @@ void UInterpolationComponent::Interpolate(FVector StartLocation, FVector TargetL
 
 void UInterpolationComponent::CheckOverlap()
 {
-	if (GetOwner())
+	if (bHoming && HomingTarget)
 	{
-		if (bHoming && HomingTarget)
+		if (FMath::IsNearlyZero(FVector::Dist(GetOwner()->GetActorLocation(), HomingTarget->GetActorLocation())))
 		{
-			if (FMath::IsNearlyZero(FVector::Dist(GetOwner()->GetActorLocation(), HomingTarget->GetActorLocation())))
+
+			OnTargetHit.ExecuteIfBound(HomingTarget);
+
+			GetOwner()->Destroy();
+		}
+	}
+	else if (!bHoming)
+	{
+		TArray<AActor*> ActorsOverlapped;
+		GetOwner()->GetOverlappingActors(ActorsOverlapped, ACharacter::StaticClass());
+
+		if (ActorsOverlapped.Num())
+		{
+			for (AActor* Actor : ActorsOverlapped)
 			{
-				//zovi delegate i destroy
-				
-				//OnTargetHit();
+				if (Actor != Caller)
+				{
+					OnTargetHit.ExecuteIfBound(Cast<ACartagraCharacter>(Actor));
 
-				TargetHit.Execute();
-
-				GetOwner()->Destroy();
+					GetOwner()->Destroy();
+				}
 			}
 		}
-		else if (!bHoming)
+		else if (FMath::IsNearlyZero(FVector::Dist(GetOwner()->GetActorLocation(), StaticTarget)))
 		{
-			if (FMath::IsNearlyZero(FVector::Dist(GetOwner()->GetActorLocation(), StaticTarget)))
-			{
-				//zovi delegate i destroy
+			OnHit.ExecuteIfBound();
 
-				//OnTargetHit();	
-
-				GetOwner()->Destroy();
-			}
+			GetOwner()->Destroy();
 		}
 	}
 }

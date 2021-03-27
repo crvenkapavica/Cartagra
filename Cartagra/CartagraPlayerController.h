@@ -20,21 +20,25 @@ private:
 
 	bool bMoveToMouseCursor = 0;
 
+	bool bAlternateMode = 0;
+
+	//Move to DestLocation
 	void MoveToMouseCursor(float DeltaTime);
 
-	void SetNewMoveDestination(const FVector DestLocation);
+	//While holding the mouse key keep updating the DestLocation
+	void SetNewMoveDestination(const FVector Destination);
 
-	void OnCameraZoomIn();
-	void OnCameraZoomOut();
+	void CameraZoomIn();
+	void CameraZoomOut();
 
-	void OnSetDestinationPressed();
-	void OnSetDestinationReleased();
+	///Initiate a specific action (attacking, selecting, interacting)
+	void OnInitiateAction();
+	///Depending on the action that was initated, complete the task
+	void OnCompleteAction();
 
-	void OnBeginPrimaryAttack();
-	void OnEndPrimaryAttack();
-
-	void OnBeginAlternateMode();
-	void OnEndAlternateMode();
+	//SHIFT key is pressed, so set bAlternateMode = true
+	void AlternateModePressed();
+	void AlternateModeReleased();
 
 protected:
 
